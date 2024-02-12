@@ -6,6 +6,7 @@ import lottieHealthy from "./assets/Lottie - healthy.json";
 import lottieSick from "./assets/Lottie - sick.json";
 import exampleWav from "./assets/example.wav";
 import { useWavesurfer } from '@wavesurfer/react'
+import ResultTable from './ResultTable';
 
 function App() {
   const [audioFile, setAudioFile] = useState(null)
@@ -58,7 +59,7 @@ function App() {
     const selectedFile = event.target.files[0];
     setAudioFile(selectedFile);
     if(selectedFile != null || selectedFile != undefined){
-      window.fileURL = URL.createObjectURL(selectedFile);  
+      window.fileURL = URL.createObjectURL(selectedFile)
       wavesurfer.load(window.fileURL);
     }
     else{
@@ -74,40 +75,44 @@ function App() {
   }
 
   const handleSubmit = async (event) => {
-    event.preventDefault();
-    setStep((prevStep) => prevStep + 1);
+
+    const selectedGejala = Object.keys(symptoms).filter(symptom => symptoms[symptom]).map(symptom => gejala[symptom])
+    console.log(selectedGejala)
+
+    event.preventDefault()
+    setStep((prevStep) => prevStep + 1)
 
     try {
-      setLoading(true); // Set loading state to true
+      setLoading(true)
   
-      const formData = new FormData();
-      formData.append('berkas_audio', audioFile);
+      const formData = new FormData()
+      formData.append('berkas_audio', audioFile)
       Object.entries(symptoms).forEach(([key, value]) => {
-        formData.append(key, value);
+        formData.append(key, value)
       });
   
       const response = await fetch('http://127.0.0.1:5000/predict_covid', {
         method: 'POST',
         body: formData,
-      });
+      })
   
       if (response.ok) {
-        const data = await response.json();
+        const data = await response.json()
         console.log(data)
-        setResult(data);
-        setError(null);
+        setResult(data)
+        setError(null)
       } else {
-        const data = await response.json();
-        setError(data.error);
-        setResult(null);
+        const data = await response.json()
+        setError(data.error)
+        setResult(null)
       }
     } catch (error) {
-      setError(`Error: ${error.message}`);
-      setResult(null);
+      setError(`Error: ${error.message}`)
+      setResult(null)
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   const handleNext = () => {
     wavesurfer.pause()
@@ -124,10 +129,8 @@ function App() {
   };
   
   return (
-  <>
-
     <section className="bg-gray-50 dark:bg-gray-900">
-      <div className="flex flex-col items-center justify-center px-6 py-8 mx-auto md:h-screen lg:py-0">
+      <div className="flex flex-col items-center justify-center px-2 py-8 mx-auto min-h-screen lg:py-8">
         <a
           href="#"
           className="flex items-center mb-6 text-2xl font-semibold text-gray-900 dark:text-white"
@@ -139,7 +142,7 @@ function App() {
           />
           Seminar Hasil
         </a>
-        <div className="w-full bg-white rounded-lg shadow dark:border md:mt-0 sm:max-w-2xl xl:p-0 dark:bg-gray-800 dark:border-gray-700">
+        <div className="w-full bg-white rounded-lg shadow dark:border md:mt-0 sm:min-w-fit sm:max-w-fit xl:p-0 dark:bg-gray-800 dark:border-gray-700">
           <div className="p-6 space-y-4 md:space-y-6 sm:p-8">
             <h1 className="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">
               Praskrining COVID-19
@@ -147,7 +150,7 @@ function App() {
             
             <ol className="flex items-center w-full p-3 space-x-2 text-sm font-medium text-center text-gray-500 bg-white border border-gray-200 rounded-lg shadow-sm dark:text-gray-400 sm:text-base dark:bg-gray-800 dark:border-gray-700 sm:p-4 sm:space-x-4 rtl:space-x-reverse">
               <li className={`flex items-center ${step === 1 ? 'text-blue-600 dark:text-blue-500' : ''}`} id="1">
-                <span className="flex items-center justify-center w-5 h-5 me-2 text-xs border border-blue-600 rounded-full shrink-0 dark:border-blue-500">
+                <span className={`flex items-center justify-center w-5 h-5 me-2 text-xs border ${step === 1 ? ' border-blue-600 rounded-full shrink-0 dark:border-blue-500' : 'border-gray-500 rounded-full shrink-0 dark:border-gray-400'}`}>
                   1
                 </span>
                 Unggah Suara Batuk
@@ -168,7 +171,7 @@ function App() {
                 </svg>
               </li>
               <li className={`flex items-center ${step === 2 ? 'text-blue-600 dark:text-blue-500' : ''}`} id="2">
-                <span className="flex items-center justify-center w-5 h-5 me-2 text-xs border border-gray-500 rounded-full shrink-0 dark:border-gray-400">
+                <span className={`flex items-center justify-center w-5 h-5 me-2 text-xs border ${step === 2 ? ' border-blue-600 rounded-full shrink-0 dark:border-blue-500' : 'border-gray-500 rounded-full shrink-0 dark:border-gray-400'}`}>
                   2
                 </span>
                 Cek Gejala
@@ -189,7 +192,7 @@ function App() {
                 </svg>
               </li>
               <li className={`flex items-center ${step === 3 ? 'text-blue-600 dark:text-blue-500' : ''}`} id="3">
-                <span className="flex items-center justify-center w-5 h-5 me-2 text-xs border border-gray-500 rounded-full shrink-0 dark:border-gray-400">
+                <span className={`flex items-center justify-center w-5 h-5 me-2 text-xs border ${step === 3 ? ' border-blue-600 rounded-full shrink-0 dark:border-blue-500' : 'border-gray-500 rounded-full shrink-0 dark:border-gray-400'}`}>
                   3
                 </span>
                 Hasil Deteksi
@@ -307,9 +310,19 @@ function App() {
                       </div>
                       <p className='text-center'>
                         {result.prediction.includes(1)
-                          ? `Terdapat ${result.prediction.length} segmen batuk, ${result.prediction.filter(value => value === 1).length} terindikasi COVID-19!!!`
-                          : `Terdapat ${result.prediction.length} segmen batuk, tidak ada prediksi batuk COVID-19...`}
+                          ? <span className='text-red-500 font-normal'>{`Terdapat ${result.prediction.length} segmen batuk, ${result.prediction.filter(value => value === 1).length} terindikasi COVID-19!!!`}</span>
+                          : <span className='text-green-500 font-normal'>{`Terdapat ${result.prediction.length} segmen batuk, tidak ada indikasi COVID-19...`} </span>}
                       </p>
+                      <div className="mt-4 w-full">
+                        <ResultTable data={result} />
+                      </div>
+                      <div className="mt-4 w-full flex justify-center">
+                      {(Object.keys(symptoms).filter(symptom => symptoms[symptom]).map(symptom => gejala[symptom])).map((value, index) => {
+                        return (
+                          <span key={index} class="bg-pink-100 text-pink-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded-full dark:bg-pink-900 dark:text-pink-300">{value}</span>
+                        )
+                      })}
+                      </div>
                     </>
                   )}
 
@@ -324,6 +337,7 @@ function App() {
                 </div>
               )}
 
+              <hr class="h-px bg-gray-200 border-0 dark:bg-gray-700"></hr>
 
               {/* Navigation Buttons */}
               <div className={`flex mt-4 ${
@@ -398,9 +412,6 @@ function App() {
         </div>
       </div>
     </section>
-
-
-  </>
   )
 }
 
